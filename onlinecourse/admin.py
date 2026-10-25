@@ -28,6 +28,10 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = [ChoiceInline]
     list_display = ['question_text']
 
+    # Show the question content in the admin list
+    def question_text(self, obj):
+        return obj.content
+
 
 class LessonAdmin(admin.ModelAdmin):
     list_display = ['title']

@@ -72,14 +72,14 @@ Bootstrap 4 CSS and JS are loaded from the CDN in the head element.
             {% csrf_token %}
             {% for question in course.question_set.all %}
             <div class="card mt-1">
-                <div class="card-header"><h5>{{ question.question_text }}</h5></div>
+                <div class="card-header"><h5>{{ question.content }}</h5></div>
                 <div class="card-body">
                     {% for choice in question.choice_set.all %}
                     <div class="form-check">
                         <label class="form-check-label">
                             <input type="checkbox" name="choice_{{ choice.id }}"
                                    class="form-check-input" id="{{ choice.id }}"
-                                   value="{{ choice.id }}">{{ choice.choice_text }}
+                                   value="{{ choice.id }}">{{ choice.content }}
                         </label>
                     </div>
                     {% endfor %}

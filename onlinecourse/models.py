@@ -9,7 +9,6 @@ except Exception:
 from django.conf import settings
 import uuid
 
-
 # Instructor model
 class Instructor(models.Model):
     user = models.ForeignKey(
@@ -21,7 +20,6 @@ class Instructor(models.Model):
 
     def __str__(self):
         return self.user.username
-
 
 # Learner model
 class Learner(models.Model):
@@ -51,7 +49,6 @@ class Learner(models.Model):
         return self.user.username + "," + \
                self.occupation
 
-
 # Course model
 class Course(models.Model):
     name = models.CharField(null=False, max_length=30, default='online course')
@@ -67,7 +64,6 @@ class Course(models.Model):
         return "Name: " + self.name + "," + \
                "Description: " + self.description
 
-
 # Lesson model
 class Lesson(models.Model):
     title = models.CharField(max_length=200, default="title")
@@ -75,11 +71,9 @@ class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     content = models.TextField()
 
-    def __str__(self):
-        return self.title
-
-
 # Enrollment model
+# <HINT> Once a user enrolled a class, an enrollment entry should be created between the user and course
+# And we could use the enrollment to track information such as exam submissions
 class Enrollment(models.Model):
     AUDIT = 'audit'
     HONOR = 'honor'
@@ -95,43 +89,27 @@ class Enrollment(models.Model):
     mode = models.CharField(max_length=5, choices=COURSE_MODES, default=AUDIT)
     rating = models.FloatField(default=5.0)
 
-
-# Question model
-# One course can have many questions
 class Question(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    question_text = models.CharField(max_length=200)
-    grade = models.IntegerField(default=0)
+    content = models.CharField(max_length=200)
+    grade = models.IntegerField(default=50)
 
     def __str__(self):
-        return self.question_text
+        return "Question: " + self.content
 
-    # Returns True if the learner selected all correct choices and no wrong choices
     def is_get_score(self, selected_ids):
         all_answers = self.choice_set.filter(is_correct=True).count()
         selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
-        selected_wrong = self.choice_set.filter(is_correct=False, id__in=selected_ids).count()
-        return all_answers == selected_correct and selected_wrong == 0
+        if all_answers == selected_correct:
+            return True
+        else:
+            return False
 
-
-# Choice model
-# One question can have many choices
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
+    content = models.CharField(max_length=200)
     is_correct = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.choice_text
-
-
-# Submission model
-# One enrollment can have many submissions
-# One submission can have many choices
-# One choice can belong to many submissions
 class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice)
-
-    def __str__(self):
-        return f"Submission {self.id} by {self.enrollment.user.username}"
