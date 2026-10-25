@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     {% load static %}
+    <!-- Bootstrap styling -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
@@ -38,14 +39,16 @@
 
 <div class="container-fluid mt-3">
     <!-- Course name -->
-    <h2>{{ course.name }}</h2>
-    <p>{{ course.description }}</p>
+    <h2 class="display-4">{{ course.name }}</h2>
+    <p class="lead">{{ course.description }}</p>
 
-    <!-- All lessons of the course -->
+    <!-- All lessons of the course, shown as Bootstrap cards -->
     <div class="card-columns-vertical">
         {% for lesson in course.lesson_set.all %}
         <div class="card mt-1">
-            <div class="card-header"><h5>Lesson {{ lesson.order|add:1 }}: {{ lesson.title }}</h5></div>
+            <div class="card-header">
+                <h5>Lesson {{ lesson.order|add:1 }}: {{ lesson.title }}</h5>
+            </div>
             <div class="card-body">{{ lesson.content }}</div>
         </div>
         {% endfor %}
@@ -59,14 +62,14 @@
             {% csrf_token %}
             {% for question in course.question_set.all %}
             <div class="card mt-1">
-                <div class="card-header"><h5>{{ question.content }}</h5></div>
+                <div class="card-header"><h5>{{ question.question_text }}</h5></div>
                 <div class="card-body">
                     {% for choice in question.choice_set.all %}
                     <div class="form-check">
                         <label class="form-check-label">
                             <input type="checkbox" name="choice_{{ choice.id }}"
                                    class="form-check-input" id="{{ choice.id }}"
-                                   value="{{ choice.id }}">{{ choice.content }}
+                                   value="{{ choice.id }}">{{ choice.choice_text }}
                         </label>
                     </div>
                     {% endfor %}

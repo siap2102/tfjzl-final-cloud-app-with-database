@@ -115,37 +115,46 @@ def extract_answers(request):
 
 # Create an exam submission record for a course enrollment
 def submit(request, course_id):
+    # Get the user and course, then the enrollment created when the user enrolled
     course = get_object_or_404(Course, pk=course_id)
     user = request.user
     enrollment = Enrollment.objects.get(user=user, course=course)
+    # Create a submission that refers to the enrollment
     submission = Submission.objects.create(enrollment=enrollment)
-    choice_ids = extract_answers(request)
-    for choice_id in choice_ids:
-        choice = Choice.objects.get(pk=choice_id)
-        submission.choices.add(choice)
+    # Collect the selected choices from the exam form and add them to the submission
+    choices = extract_answers(request)
+    submission.choices.set(choices)
+    submission_id = submission.id
+    # Redirect to show_exam_result with the submission id
     return HttpResponseRedirect(
-        reverse(viewname='onlinecourse:exam_result', args=(course.id, submission.id,))
+        reverse(viewname='onlinecourse:show_exam_result', args=(course_id, submission_id,))
     )
 
 
 # Check if the learner passed the exam and show the result for each question
 def show_exam_result(request, course_id, submission_id):
     context = {}
+    # Get the course and submission from their ids
     course = get_object_or_404(Course, pk=course_id)
     submission = get_object_or_404(Submission, pk=submission_id)
+    # Get the selected choice ids from the submission record
     choices = submission.choices.all()
     selected_ids = [choice.id for choice in choices]
 
+    # For each question, check the selected choices and calculate the total score
     total_score = 0
-    max_score = 0
+    possible = 0
     for question in course.question_set.all():
-        max_score += question.grade
+        possible += question.grade
         if question.is_get_score(selected_ids):
             total_score += question.grade
 
-    grade = round(total_score * 100 / max_score) if max_score > 0 else 0
+    grade = round(total_score * 100 / possible) if possible > 0 else 0
 
     context['course'] = course
-    context['grade'] = grade
     context['choices'] = choices
+    context['selected_ids'] = selected_ids
+    context['total_score'] = total_score
+    context['possible'] = possible
+    context['grade'] = grade
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
