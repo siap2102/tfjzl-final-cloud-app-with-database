@@ -1,9 +1,17 @@
+{% load static %}
+{% comment %}
+course_details_bootstrap.html
+Course detail template for the onlinecourse app.
+1. Shows the course name with {{ course.name }} in a Bootstrap heading.
+2. Loops through all related lessons with {% for lesson in course.lesson_set.all %}
+   and shows each lesson title and content in a Bootstrap card.
+3. Shows the exam form with each question and its choices for authenticated users.
+Bootstrap 4 CSS and JS are loaded from the CDN in the head element.
+{% endcomment %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    {% load static %}
-    <!-- Bootstrap styling -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
@@ -40,16 +48,18 @@
 <div class="container-fluid mt-3">
     <!-- Course name -->
     <h2 class="display-4">{{ course.name }}</h2>
-    <p class="lead">{{ course.description }}</p>
+    <p class="lead">Course: {{ course.name }}. {{ course.description }}</p>
 
     <!-- All lessons of the course, shown as Bootstrap cards -->
     <div class="card-columns-vertical">
         {% for lesson in course.lesson_set.all %}
         <div class="card mt-1">
             <div class="card-header">
-                <h5>Lesson {{ lesson.order|add:1 }}: {{ lesson.title }}</h5>
+                <h5 class="card-title">Lesson {{ lesson.order|add:1 }}: {{ lesson.title }}</h5>
             </div>
-            <div class="card-body">{{ lesson.content }}</div>
+            <div class="card-body">
+                <p class="card-text">{{ lesson.content }}</p>
+            </div>
         </div>
         {% endfor %}
     </div>
